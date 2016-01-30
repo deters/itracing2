@@ -36,8 +36,10 @@ public class DashboardActivity extends CommonActivity implements DashboardFragme
         {
             if (iBinder instanceof BluetoothLEService.BackgroundBluetoothLEBinder) {
                 service = ((BluetoothLEService.BackgroundBluetoothLEBinder) iBinder).service();
-                service.connect(DashboardActivity.this.address);
-                setRefreshing(true);
+                //service.connect(DashboardActivity.this.address);
+                //
+                //
+                // setRefreshing(true);
             }
         }
 
@@ -64,17 +66,7 @@ public class DashboardActivity extends CommonActivity implements DashboardFragme
                         @Override
                         public void run()
                         {
-                            dashboardFragment.setImmediateAlertEnabled(true);
-                        }
-                    });
-                }
-
-                if (BluetoothLEService.BATTERY_LEVEL.equals(intent.getAction())) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run()
-                        {
-                            dashboardFragment.setPercent(intent.getIntExtra(BluetoothLEService.BATTERY_LEVEL, 0));
+                            //dashboardFragment.setImmediateAlertEnabled(true);
                         }
                     });
                 }
@@ -89,15 +81,6 @@ public class DashboardActivity extends CommonActivity implements DashboardFragme
                     });
                 }
 
-                if (BluetoothLEService.RSSI_RECEIVED.equals(intent.getAction())) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run()
-                        {
-                            dashboardFragment.setRssi(intent.getIntExtra(BluetoothLEService.RSSI_RECEIVED, 0));
-                        }
-                    });
-                }
             }
         };
     }
@@ -128,9 +111,7 @@ public class DashboardActivity extends CommonActivity implements DashboardFragme
     {
         // register events
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter(BluetoothLEService.IMMEDIATE_ALERT_AVAILABLE));
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter(BluetoothLEService.BATTERY_LEVEL));
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter(BluetoothLEService.SERVICES_DISCOVERED));
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter(BluetoothLEService.RSSI_RECEIVED));
 
         // bind service
         bindService(new Intent(this, BluetoothLEService.class), serviceConnection, BIND_AUTO_CREATE);
@@ -139,9 +120,9 @@ public class DashboardActivity extends CommonActivity implements DashboardFragme
     @Override
     public void onDashboardStopped()
     {
-        if (this.service != null) {
-            this.service.disconnect(this.address);
-        }
+        //if (this.service != null) {
+        //    this.service.disconnect(this.address);
+        //}
 
         this.setRefreshing(false);
 

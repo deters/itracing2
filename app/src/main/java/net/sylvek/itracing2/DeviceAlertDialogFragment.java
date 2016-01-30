@@ -49,6 +49,16 @@ public class DeviceAlertDialogFragment extends DialogFragment {
             }
         });
 
+        final Button stop = (Button) alertView.findViewById(R.id.buttonstop);
+        stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                ((OnConfirmAlertDialogListener) getActivity()).doNegativeClick(address);
+            }
+        });
+
+
         return new AlertDialog.Builder(getActivity())
                 .setView(alertView)
                 .setPositiveButton(android.R.string.ok,
@@ -59,14 +69,14 @@ public class DeviceAlertDialogFragment extends DialogFragment {
                             }
                         }
                 )
-                .setNegativeButton(android.R.string.cancel,
+/*                .setNegativeButton(android.R.string.cancel,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton)
                             {
-                                ((OnConfirmAlertDialogListener) getActivity()).doNegativeClick();
+                                ((OnConfirmAlertDialogListener) getActivity()).doNegativeClick(address, editText.getText().toString());
                             }
                         }
-                )
+                )*/
                 .create();
     }
 
@@ -74,7 +84,7 @@ public class DeviceAlertDialogFragment extends DialogFragment {
 
         void doPositiveClick(final String address, final String text);
 
-        void doNegativeClick();
+        void doNegativeClick(final String address);
 
         void doNeutralClick(final String address);
     }

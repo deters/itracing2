@@ -267,9 +267,18 @@ public class DevicesActivity extends CommonActivity implements DevicesFragment.O
         onDonate();
     }
 
+
     @Override
     public void doNegativeClick()
     {
+        
+    }
+
+
+    @Override
+    public void doNegativeClick(String address)
+    {
+        this.service.immediateAlert(address, BluetoothLEService.NO_ALERT);
     }
 
     @Override

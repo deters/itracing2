@@ -44,15 +44,6 @@ public class DashboardFragment extends PreferenceFragment {
                 return true;
             }
         });
-        findPreference(Preferences.CIRCLE_PERCENT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference)
-            {
-                activated = (activated) ? false : true;
-                presenter.onImmediateAlert(address, activated);
-                return true;
-            }
-        });
     }
 
     @Override
@@ -94,21 +85,6 @@ public class DashboardFragment extends PreferenceFragment {
     {
         super.onStop();
         this.presenter.onDashboardStopped();
-    }
-
-    public void setImmediateAlertEnabled(final boolean enabled)
-    {
-        findPreference(Preferences.CIRCLE_PERCENT).setEnabled(enabled);
-    }
-
-    public void setPercent(final int percent)
-    {
-        ((CirclePercentPreference) findPreference(Preferences.CIRCLE_PERCENT)).setBatteryPercent(Float.valueOf(percent));
-    }
-
-    public void setRssi(int rssi)
-    {
-        ((CirclePercentPreference) findPreference(Preferences.CIRCLE_PERCENT)).setRssiValue(Float.valueOf(rssi));
     }
 
     public interface OnDashboardListener {

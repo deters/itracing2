@@ -99,18 +99,24 @@ public class DevicesFragment extends ListFragment implements LoaderManager.Loade
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l)
             {
+
+                final TextView name = (TextView) view.findViewById(android.R.id.text1);
                 final TextView address = (TextView) view.findViewById(android.R.id.text2);
-                presenter.onDevice(address.getText().toString());
+                presenter.onChangeDeviceName(name.getText().toString(), address.getText().toString());
+
             }
         });
         getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l)
             {
-                final TextView name = (TextView) view.findViewById(android.R.id.text1);
+
                 final TextView address = (TextView) view.findViewById(android.R.id.text2);
-                presenter.onChangeDeviceName(name.getText().toString(), address.getText().toString());
+                presenter.onDevice(address.getText().toString());
+
                 return true;
+
+
             }
         });
     }
