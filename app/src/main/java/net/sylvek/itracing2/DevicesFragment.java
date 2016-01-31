@@ -215,7 +215,7 @@ public class DevicesFragment extends ListFragment implements LoaderManager.Loade
             final int column = cursor.getColumnIndex(Devices.ENABLED);
             final boolean enabled = cursor.getInt(column) == 1;
 
-
+/*
 
             final int connected_index = cursor.getColumnIndex(Devices.CONNECTED);
             final boolean connected = cursor.getInt(connected_index) == 1;
@@ -225,7 +225,7 @@ public class DevicesFragment extends ListFragment implements LoaderManager.Loade
             } else {
                 address.setTextColor(Color.BLACK);
             }
-
+*/
 
 
 

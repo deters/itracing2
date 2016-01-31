@@ -298,7 +298,7 @@ public class BluetoothLEService extends Service {
                     .setTicker(getText(R.string.foreground_started))
                     .setContentText(getText(R.string.foreground_started))
                     .setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, DevicesActivity.class), 0))
-                    .setShowWhen(false).build();
+                    .setShowWhen(false).setAutoCancel(true).build();
             this.startForeground(FOREGROUND_ID, notification);
         } else {
             this.stopForeground(true);
