@@ -47,6 +47,8 @@ public class DevicesActivity extends CommonActivity implements DevicesFragment.O
             }
         }
 
+
+
         @Override
         public void onServiceDisconnected(ComponentName componentName)
         {
@@ -158,12 +160,7 @@ public class DevicesActivity extends CommonActivity implements DevicesFragment.O
 
     @Override
     public void onDevicesStarted()
-    {
-        if (random.nextInt(100) > 80 && !Preferences.isDonated(this)) { // displayed 20% time
-            ConfirmAlertDialogFragment.instance(R.string.donate, R.string.donate_summary).show(getFragmentManager(), null);
-        }
-
-        // bind service
+    {// bind service
         bindService(new Intent(this, BluetoothLEService.class), serviceConnection, BIND_AUTO_CREATE);
     }
 
@@ -264,14 +261,14 @@ public class DevicesActivity extends CommonActivity implements DevicesFragment.O
     @Override
     public void doPositiveClick()
     {
-        onDonate();
+        //onDonate();
     }
 
 
     @Override
     public void doNegativeClick()
     {
-        
+
     }
 
 

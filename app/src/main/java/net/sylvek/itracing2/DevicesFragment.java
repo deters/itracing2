@@ -6,6 +6,7 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
@@ -209,10 +210,26 @@ public class DevicesFragment extends ListFragment implements LoaderManager.Loade
             final CheckBox button = (CheckBox) view.findViewById(android.R.id.selectedIcon);
 
             final String device = address.getText().toString();
+
+
             final int column = cursor.getColumnIndex(Devices.ENABLED);
             final boolean enabled = cursor.getInt(column) == 1;
 
-            Log.d(TAG, "device: " + device + " enabled: " + enabled);
+
+
+            final int connected_index = cursor.getColumnIndex(Devices.CONNECTED);
+            final boolean connected = cursor.getInt(connected_index) == 1;
+
+            if (connected){
+                address.setTextColor(Color.BLUE);
+            } else {
+                address.setTextColor(Color.BLACK);
+            }
+
+
+
+
+            //           Log.d(TAG, "device: " + device + " enabled: " + enabled);
 
             button.setChecked(enabled);
             button.setOnClickListener(new View.OnClickListener() {

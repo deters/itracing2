@@ -41,5 +41,17 @@ public class StartVibratePhone extends BroadcastReceiver {
                 .setContentIntent(PendingIntent.getBroadcast(context, 0, new Intent(context, StopVibratePhone.class), PendingIntent.FLAG_UPDATE_CURRENT))
                 .build();
         notificationManager.notify(NOTIFICATION_ID, notification);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        vibrator.cancel();
+
+        //NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        //notificationManager.cancel(StartVibratePhone.NOTIFICATION_ID);
+
     }
 }

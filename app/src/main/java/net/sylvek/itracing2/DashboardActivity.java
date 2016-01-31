@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+
 import net.sylvek.itracing2.database.Devices;
 
 /**
@@ -32,8 +33,7 @@ public class DashboardActivity extends CommonActivity implements DashboardFragme
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder)
-        {
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             if (iBinder instanceof BluetoothLEService.BackgroundBluetoothLEBinder) {
                 service = ((BluetoothLEService.BackgroundBluetoothLEBinder) iBinder).service();
                 //service.connect(DashboardActivity.this.address);
@@ -44,28 +44,24 @@ public class DashboardActivity extends CommonActivity implements DashboardFragme
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName componentName)
-        {
+        public void onServiceDisconnected(ComponentName componentName) {
             Log.d(BluetoothLEService.TAG, "onServiceDisconnected()");
         }
     };
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
         receiver = new BroadcastReceiver() {
             @Override
-            public void onReceive(Context context, final Intent intent)
-            {
+            public void onReceive(Context context, final Intent intent) {
                 if (BluetoothLEService.IMMEDIATE_ALERT_AVAILABLE.equals(intent.getAction())) {
 
                     runOnUiThread(new Runnable() {
                         @Override
-                        public void run()
-                        {
+                        public void run() {
                             //dashboardFragment.setImmediateAlertEnabled(true);
                         }
                     });
@@ -74,8 +70,7 @@ public class DashboardActivity extends CommonActivity implements DashboardFragme
                 if (BluetoothLEService.SERVICES_DISCOVERED.equals(intent.getAction())) {
                     runOnUiThread(new Runnable() {
                         @Override
-                        public void run()
-                        {
+                        public void run() {
                             setRefreshing(false);
                         }
                     });
@@ -86,29 +81,25 @@ public class DashboardActivity extends CommonActivity implements DashboardFragme
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
         address = getIntent().getStringExtra(Devices.ADDRESS);
         setTitle(address);
         showDashboard();
     }
 
-    private void showDashboard()
-    {
+    private void showDashboard() {
         this.dashboardFragment = DashboardFragment.instance(address);
         getFragmentManager().beginTransaction().replace(R.id.container, dashboardFragment).commit();
     }
 
     @Override
-    public void onImmediateAlert(final String address, final boolean activate)
-    {
+    public void onImmediateAlert(final String address, final boolean activate) {
         service.immediateAlert(address, (activate) ? BluetoothLEService.HIGH_ALERT : BluetoothLEService.NO_ALERT);
     }
 
     @Override
-    public void onDashboardStarted()
-    {
+    public void onDashboardStarted() {
         // register events
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter(BluetoothLEService.IMMEDIATE_ALERT_AVAILABLE));
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter(BluetoothLEService.SERVICES_DISCOVERED));
@@ -118,8 +109,7 @@ public class DashboardActivity extends CommonActivity implements DashboardFragme
     }
 
     @Override
-    public void onDashboardStopped()
-    {
+    public void onDashboardStopped() {
         //if (this.service != null) {
         //    this.service.disconnect(this.address);
         //}
@@ -131,8 +121,7 @@ public class DashboardActivity extends CommonActivity implements DashboardFragme
     }
 
     @Override
-    public void onRingStone()
-    {
+    public void onRingStone() {
         Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_RINGTONE);
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, getString(R.string.ring_tone));
@@ -141,14 +130,12 @@ public class DashboardActivity extends CommonActivity implements DashboardFragme
     }
 
     @Override
-    public void onRemove()
-    {
+    public void onRemove() {
         ConfirmAlertDialogFragment.instance(R.string.confirm_remove_keyring).show(getFragmentManager(), "dialog");
     }
 
     @Override
-    public void doPositiveClick()
-    {
+    public void doPositiveClick() {
         if (Preferences.clearAll(this, address)) {
             this.setRefreshing(false);
             this.service.remove(address);
@@ -158,14 +145,12 @@ public class DashboardActivity extends CommonActivity implements DashboardFragme
     }
 
     @Override
-    public void doNegativeClick()
-    {
+    public void doNegativeClick() {
         // nothing to do.
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_RING_STONE) {
             Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
             if (uri != null) {
