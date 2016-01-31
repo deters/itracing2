@@ -117,7 +117,30 @@ public class BluetoothLEService extends Service {
                     case BluetoothGatt.STATE_CONNECTED:
                         Log.d(TAG, "onConnectionStateChange() newstate = STATE_CONNECTED");
                         if (!immediateAlertService.containsKey(gatt.getDevice().getAddress())) {
-                            gatt.discoverServices();
+                            //gatt.discoverServices();
+
+
+                            BluetoothGattService s = new BluetoothGattService(IMMEDIATE_ALERT_SERVICE,BluetoothGattService.SERVICE_TYPE_PRIMARY);
+                            BluetoothGattCharacteristic alert_level = new BluetoothGattCharacteristic(ALERT_LEVEL_CHARACTERISTIC,BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE,0);
+                            s.addCharacteristic(alert_level);
+                            gatt.getServices().add(s);
+
+                            BluetoothGattService s2 = new BluetoothGattService(FIND_ME_SERVICE,BluetoothGattService.SERVICE_TYPE_PRIMARY);
+                            BluetoothGattCharacteristic find_me = new BluetoothGattCharacteristic(FIND_ME_CHARACTERISTIC,BluetoothGattCharacteristic.PROPERTY_INDICATE,BluetoothGattCharacteristic.PERMISSION_READ);
+                            s2.addCharacteristic(find_me);
+                            gatt.getServices().add(s2);
+
+                            setCharacteristicNotification(gatt, find_me, true);
+                            enablePeerDeviceNotifyMe(gatt, true);
+
+                            broadcaster.sendBroadcast(new Intent(IMMEDIATE_ALERT_AVAILABLE));
+                            gatt.readCharacteristic(alert_level);
+
+                            if (!immediateAlertService.containsKey(gatt.getDevice().getAddress())) {
+                                immediateAlertService.put(gatt.getDevice().getAddress(), s);
+                            }
+
+
                         }
 
                         ToneGenerator toneGen2 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
@@ -154,42 +177,6 @@ public class BluetoothLEService extends Service {
 
 
                 Log.d(TAG, "onServicesDiscovered()");
-
-                broadcaster.sendBroadcast(new Intent(SERVICES_DISCOVERED));
-                if (BluetoothGatt.GATT_SUCCESS == status) {
-
-                    for (BluetoothGattService service : gatt.getServices()) {
-                        if (IMMEDIATE_ALERT_SERVICE.equals(service.getUuid())) {
-
-                            if (!immediateAlertService.containsKey(gatt.getDevice().getAddress())) {
-                                immediateAlertService.put(gatt.getDevice().getAddress(), service);
-
-                                broadcaster.sendBroadcast(new Intent(IMMEDIATE_ALERT_AVAILABLE));
-                                gatt.readCharacteristic(getCharacteristic(gatt, IMMEDIATE_ALERT_SERVICE, ALERT_LEVEL_CHARACTERISTIC));
-
-                            }
-
-                        }
-
-
-                        if (FIND_ME_SERVICE.equals(service.getUuid())) {
-                            if (!service.getCharacteristics().isEmpty()) {
-                                BluetoothGattCharacteristic buttonCharacteristic;
-                                buttonCharacteristic = service.getCharacteristics().get(0);
-                                setCharacteristicNotification(gatt, buttonCharacteristic, true);
-                            }
-                        }
-                    }
-                    enablePeerDeviceNotifyMe(gatt, true);
-                }
-
-
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
             }
         }
 
