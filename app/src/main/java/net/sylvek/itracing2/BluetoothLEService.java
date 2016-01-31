@@ -120,14 +120,18 @@ public class BluetoothLEService extends Service {
                             //gatt.discoverServices();
 
 
-                            BluetoothGattService s = new BluetoothGattService(IMMEDIATE_ALERT_SERVICE,BluetoothGattService.SERVICE_TYPE_PRIMARY);
-                            BluetoothGattCharacteristic alert_level = new BluetoothGattCharacteristic(ALERT_LEVEL_CHARACTERISTIC,BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE,0);
+                            BluetoothGattService s = createservice(gatt, new BluetoothGattService(IMMEDIATE_ALERT_SERVICE,BluetoothGattService.SERVICE_TYPE_PRIMARY));
+                            BluetoothGattCharacteristic alert_level = new BluetoothGattCharacteristic(ALERT_LEVEL_CHARACTERISTIC,BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE,0x0);
                             s.addCharacteristic(alert_level);
                             gatt.getServices().add(s);
 
                             BluetoothGattService s2 = new BluetoothGattService(FIND_ME_SERVICE,BluetoothGattService.SERVICE_TYPE_PRIMARY);
-                            BluetoothGattCharacteristic find_me = new BluetoothGattCharacteristic(FIND_ME_CHARACTERISTIC,BluetoothGattCharacteristic.PROPERTY_INDICATE,BluetoothGattCharacteristic.PERMISSION_READ);
+                            BluetoothGattCharacteristic find_me = new BluetoothGattCharacteristic(FIND_ME_CHARACTERISTIC, 0x10, 0);//0x18,0x0);
                             s2.addCharacteristic(find_me);
+
+
+
+
                             gatt.getServices().add(s2);
 
                             setCharacteristicNotification(gatt, find_me, true);
@@ -168,6 +172,27 @@ public class BluetoothLEService extends Service {
                     enablePeerDeviceNotifyMe(gatt, false);
                 }
             }
+        }
+
+        private BluetoothGattService createservice(BluetoothGatt gatt, BluetoothGattService bluetoothGattService) {
+
+
+            try {
+                BluetoothGatt localBluetoothGatt = mGatt;
+                Method localMethod = localBluetoothGatt.getClass().getMethod("refresh", new Class[0]);
+                if (localMethod != null) {
+                    boolean result = ((Boolean) localMethod.invoke(localBluetoothGatt, new Object[0])).booleanValue();
+                    if (result) {
+                        Log.d(TAG, "Bluetooth refresh cache");
+                    }
+                    return result;
+                }
+            }
+            catch (Exception localException) {
+                Log.e(TAG, "An exception occurred while refreshing device");
+            }
+            return false;
+
         }
 
         @Override
