@@ -33,7 +33,7 @@ public class StartVibratePhone extends BroadcastReceiver {
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         final Notification notification = new Notification.Builder(context)
-                .setContentText(context.getString(R.string.stop_vibrate))
+                .setContentText(intent.getStringExtra("address"))
                 .setContentTitle(context.getString(R.string.app_name))
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setAutoCancel(true)
