@@ -22,7 +22,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
+import android.net.Uri;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -95,12 +97,7 @@ public class BluetoothLEService extends Service {
 
                     case BluetoothGatt.STATE_DISCONNECTED:
                         Log.d(TAG, "onConnectionStateChange() newstate = STATE_DISCONNECTED");
-                        //broadcaster.sendBroadcast(new Intent(GATT_DISCONNECTED));
-                        //String action = Preferences.getActionOutOfBand(getApplicationContext(), this.address);
-                        //sendAction(OUT_OF_BAND, action);
-                        //final boolean connect = gatt.connect();
-
-
+                        
                         String action = Preferences.getActionOutOfBand(getApplicationContext(), this.address);
                         sendAction(OUT_OF_BAND, action);
 
@@ -149,6 +146,7 @@ public class BluetoothLEService extends Service {
 
                         ToneGenerator toneGen2 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
                         toneGen2.startTone(ToneGenerator.TONE_CDMA_ABBR_INTERCEPT, 400);
+
 
                         broadcaster.sendBroadcast(new Intent(GATT_CONNECTED));
                         break;
@@ -237,10 +235,9 @@ public class BluetoothLEService extends Service {
         }
 
         private void sendAction(String source, String action) {
-            final Intent intent = new Intent(BROADCAST_INTENT_ACTION.equals(action) ? ACTION_PREFIX + source : ACTION_PREFIX + action);
+            final Intent intent = new Intent(ACTION_PREFIX + action);
             intent.putExtra(Devices.ADDRESS, this.address);
             sendBroadcast(intent);
-            Log.d(TAG, "onCharacteristicChanged() address: " + address + " - sendBroadcast action: " + intent.getAction());
         }
 
         @Override
@@ -310,7 +307,7 @@ public class BluetoothLEService extends Service {
                     .setTicker(getText(R.string.foreground_started))
                     .setContentText(getText(R.string.foreground_started))
                     .setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, DevicesActivity.class), 0))
-                    .setShowWhen(false).build();
+                    .setShowWhen(false).setAutoCancel(true).build();
             this.startForeground(FOREGROUND_ID, notification);
         } else {
             this.stopForeground(true);
