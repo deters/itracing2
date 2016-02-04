@@ -1,5 +1,6 @@
 package net.sylvek.itracing2.receivers;
 
+import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,6 +10,7 @@ import android.content.Intent;
 import android.os.Vibrator;
 import android.widget.Toast;
 import net.sylvek.itracing2.R;
+import net.sylvek.itracing2.database.Devices;
 
 /**
  * Created by sylvek on 27/05/2015.
@@ -31,9 +33,13 @@ public class StartVibratePhone extends BroadcastReceiver {
 
         vibrator.vibrate(VIBRATE_PATTERN, VIBRATE_REPEAT);
 
+
+        String deviceaddress = intent.getStringExtra("address");
+        String devicename = Devices.getName(context, deviceaddress);
+
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         final Notification notification = new Notification.Builder(context)
-                .setContentText(intent.getStringExtra("address"))
+                .setContentText(devicename)
                 .setContentTitle(context.getString(R.string.app_name))
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setAutoCancel(true)

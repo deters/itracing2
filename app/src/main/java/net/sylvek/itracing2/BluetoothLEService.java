@@ -11,6 +11,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
@@ -97,13 +98,15 @@ public class BluetoothLEService extends Service {
 
                     case BluetoothGatt.STATE_DISCONNECTED:
                         Log.d(TAG, "onConnectionStateChange() newstate = STATE_DISCONNECTED");
-                        
+
                         String action = Preferences.getActionOutOfBand(getApplicationContext(), this.address);
                         sendAction(OUT_OF_BAND, action);
 
                         ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
                         toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 1500);
 
+                        Devices.setStatus(getApplicationContext(), this.address, Devices.STATUS_DISCONNECTED);
+                        broadcaster.sendBroadcast(new Intent(GATT_DISCONNECTED).putExtra("address", this.address));
 
                         break;
 
@@ -113,6 +116,7 @@ public class BluetoothLEService extends Service {
 
                     case BluetoothGatt.STATE_CONNECTED:
                         Log.d(TAG, "onConnectionStateChange() newstate = STATE_CONNECTED");
+
                         if (!immediateAlertService.containsKey(gatt.getDevice().getAddress())) {
                             gatt.discoverServices();
                         }
@@ -120,8 +124,8 @@ public class BluetoothLEService extends Service {
                         ToneGenerator toneGen2 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
                         toneGen2.startTone(ToneGenerator.TONE_CDMA_ABBR_INTERCEPT, 400);
 
-
-                        broadcaster.sendBroadcast(new Intent(GATT_CONNECTED));
+                        Devices.setStatus(getApplicationContext(), this.address, Devices.STATUS_CONNECTED);
+                        broadcaster.sendBroadcast(new Intent(GATT_CONNECTED).putExtra("address", this.address));
                         break;
 
                     case BluetoothGatt.STATE_DISCONNECTING:
@@ -162,6 +166,7 @@ public class BluetoothLEService extends Service {
                             if (!immediateAlertService.containsKey(gatt.getDevice().getAddress())) {
                                 immediateAlertService.put(gatt.getDevice().getAddress(), service);
 
+                                Devices.setStatus(getApplicationContext(), this.address, Devices.STATUS_READY);
                                 broadcaster.sendBroadcast(new Intent(IMMEDIATE_ALERT_AVAILABLE));
                                 gatt.readCharacteristic(getCharacteristic(gatt, IMMEDIATE_ALERT_SERVICE, ALERT_LEVEL_CHARACTERISTIC));
 

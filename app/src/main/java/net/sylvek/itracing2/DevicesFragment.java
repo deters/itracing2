@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.TextView;
+
 import net.sylvek.itracing2.database.Devices;
 import net.sylvek.itracing2.database.SQLiteCursorLoader;
 
@@ -32,34 +33,29 @@ public class DevicesFragment extends ListFragment implements LoaderManager.Loade
     private OnDevicesListener presenter;
     private DevicesCursorAdapter mAdapter;
 
-    public static DevicesFragment instance()
-    {
+    public static DevicesFragment instance() {
         return new DevicesFragment();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setHasOptionsMenu(true);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getLoaderManager().initLoader(0, null, this);
         return inflater.inflate(R.layout.devices, container, false);
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
-    {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.devices, menu);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
+    public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_scan) {
             this.presenter.onScanStart();
             return true;
@@ -80,8 +76,7 @@ public class DevicesFragment extends ListFragment implements LoaderManager.Loade
     }
 
     @Override
-    public void onAttach(Activity activity)
-    {
+    public void onAttach(Activity activity) {
         super.onAttach(activity);
         if (activity instanceof OnDevicesListener) {
             this.presenter = (OnDevicesListener) activity;
@@ -90,16 +85,23 @@ public class DevicesFragment extends ListFragment implements LoaderManager.Loade
         }
     }
 
+
     @Override
-    public void onActivityCreated(Bundle savedInstanceState)
-    {
+    public void onResume() {
+        super.onResume();
+
+        refresh();
+
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mAdapter = new DevicesCursorAdapter(getActivity());
         setListAdapter(mAdapter);
         getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l)
-            {
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
                 final TextView name = (TextView) view.findViewById(android.R.id.text1);
                 final TextView address = (TextView) view.findViewById(android.R.id.text2);
@@ -109,8 +111,7 @@ public class DevicesFragment extends ListFragment implements LoaderManager.Loade
         });
         getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l)
-            {
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
 
                 final TextView address = (TextView) view.findViewById(android.R.id.text2);
                 presenter.onDevice(address.getText().toString());
@@ -123,22 +124,19 @@ public class DevicesFragment extends ListFragment implements LoaderManager.Loade
     }
 
     @Override
-    public void onStart()
-    {
+    public void onStart() {
         super.onStart();
         this.presenter.onDevicesStarted();
     }
 
     @Override
-    public void onStop()
-    {
+    public void onStop() {
         super.onStop();
         this.presenter.onDevicesStopped();
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle)
-    {
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         return new SQLiteCursorLoader(
                 getActivity(),
                 Devices.getDevicesHelperInstance(getActivity()),
@@ -148,19 +146,16 @@ public class DevicesFragment extends ListFragment implements LoaderManager.Loade
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor)
-    {
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mAdapter.swapCursor(cursor);
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader)
-    {
+    public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.swapCursor(null);
     }
 
-    public void refresh()
-    {
+    public void refresh() {
         getLoaderManager().restartLoader(0, null, this);
     }
 
@@ -187,8 +182,7 @@ public class DevicesFragment extends ListFragment implements LoaderManager.Loade
 
     class DevicesCursorAdapter extends SimpleCursorAdapter {
 
-        public DevicesCursorAdapter(Context context)
-        {
+        public DevicesCursorAdapter(Context context) {
             super(context,
                     R.layout.expandable_list_item_with_options, null,
                     new String[]{
@@ -203,8 +197,7 @@ public class DevicesFragment extends ListFragment implements LoaderManager.Loade
         }
 
         @Override
-        public void bindView(View view, Context context, Cursor cursor)
-        {
+        public void bindView(View view, Context context, Cursor cursor) {
             super.bindView(view, context, cursor);
             final TextView address = (TextView) view.findViewById(android.R.id.text2);
             final CheckBox button = (CheckBox) view.findViewById(android.R.id.selectedIcon);
@@ -215,27 +208,33 @@ public class DevicesFragment extends ListFragment implements LoaderManager.Loade
             final int column = cursor.getColumnIndex(Devices.ENABLED);
             final boolean enabled = cursor.getInt(column) == 1;
 
-/*
-
-            final int connected_index = cursor.getColumnIndex(Devices.CONNECTED);
-            final boolean connected = cursor.getInt(connected_index) == 1;
-
-            if (connected){
-                address.setTextColor(Color.BLUE);
-            } else {
-                address.setTextColor(Color.BLACK);
-            }
-*/
-
-
+            final int cAddress = cursor.getColumnIndex(Devices.ADDRESS);
+            final String a = cursor.getString(cAddress);
 
             //           Log.d(TAG, "device: " + device + " enabled: " + enabled);
 
             button.setChecked(enabled);
+
+            switch (Devices.getStatus(context, a)) {
+                case Devices.STATUS_DISCONNECTED:
+                    address.setTextColor(Color.BLACK);
+                    Log.d(TAG, "STATUS_DISCONNECTED");
+                    break;
+                case Devices.STATUS_CONNECTED:
+                    address.setTextColor(Color.BLUE);
+                    Log.d(TAG, "STATUS_CONNECTED");
+                    break;
+                case Devices.STATUS_READY:
+                    address.setTextColor(Color.GREEN);
+                    Log.d(TAG, "STATUS_READY");
+                    break;
+
+            }
+
+
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view)
-                {
+                public void onClick(View view) {
                     final boolean b = button.isChecked();
                     Log.d(TAG, "onClick() device: " + device + " enabled: " + b);
                     presenter.onDeviceStateChanged(device, b);
