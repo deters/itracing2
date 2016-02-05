@@ -34,6 +34,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import net.sylvek.itracing2.database.Devices;
+import net.sylvek.itracing2.receivers.StopVibratePhone;
 
 /**
  * Created by sylvek on 18/05/2015.
@@ -99,14 +100,26 @@ public class BluetoothLEService extends Service {
                     case BluetoothGatt.STATE_DISCONNECTED:
                         Log.d(TAG, "onConnectionStateChange() newstate = STATE_DISCONNECTED");
 
-                        String action = Preferences.getActionOutOfBand(getApplicationContext(), this.address);
-                        sendAction(OUT_OF_BAND, action);
-
                         ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
                         toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 1500);
 
                         Devices.setStatus(getApplicationContext(), this.address, Devices.STATUS_DISCONNECTED);
                         broadcaster.sendBroadcast(new Intent(GATT_DISCONNECTED).putExtra("address", this.address));
+
+
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        if (Devices.getStatus(getApplicationContext(), this.address) == Devices.STATUS_DISCONNECTED) {
+
+                            String action = Preferences.getActionOutOfBand(getApplicationContext(), this.address);
+                            sendAction(OUT_OF_BAND, action);
+
+                        }
+
 
                         break;
 
@@ -116,6 +129,11 @@ public class BluetoothLEService extends Service {
 
                     case BluetoothGatt.STATE_CONNECTED:
                         Log.d(TAG, "onConnectionStateChange() newstate = STATE_CONNECTED");
+
+                        Intent intent = new Intent(getApplicationContext(), StopVibratePhone.class);
+                        intent.putExtra(Devices.ADDRESS, this.address);
+                        sendBroadcast(intent);
+
 
                         if (!immediateAlertService.containsKey(gatt.getDevice().getAddress())) {
                             gatt.discoverServices();
@@ -216,7 +234,6 @@ public class BluetoothLEService extends Service {
 
                 ToneGenerator toneGen3 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
                 toneGen3.startTone(ToneGenerator.TONE_CDMA_PIP, 1000);
-
 
 
                 lastChange = 0;
