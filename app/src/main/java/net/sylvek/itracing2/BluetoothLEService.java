@@ -209,6 +209,16 @@ public class BluetoothLEService extends Service {
             final long now = SystemClock.elapsedRealtime();
             if (lastChange + delayDoubleClick > now) {
                 Log.d(TAG, "onCharacteristicChanged() - double click");
+
+
+                ToneGenerator toneGen2 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+                toneGen2.startTone(ToneGenerator.TONE_CDMA_PIP, 1000);
+
+                ToneGenerator toneGen3 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+                toneGen3.startTone(ToneGenerator.TONE_CDMA_PIP, 1000);
+
+
+
                 lastChange = 0;
                 handler.removeCallbacks(r);
                 String action = Preferences.getActionDoubleButton(getApplicationContext(), this.address);
@@ -219,6 +229,10 @@ public class BluetoothLEService extends Service {
                     @Override
                     public void run() {
                         Log.d(TAG, "onCharacteristicChanged() - simple click");
+
+                        ToneGenerator toneGen2 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+                        toneGen2.startTone(ToneGenerator.TONE_CDMA_PIP, 1000);
+
                         String action = Preferences.getActionSimpleButton(getApplicationContext(), CustomBluetoothGattCallback.this.address);
                         sendAction(SIMPLE_CLICK, action);
                     }
